@@ -1,0 +1,78 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df1 = pd.read_csv('Debt.PPP1.csv')
+df2 = pd.read_csv('Debt.ppp2.csv')
+df3 = pd.read_csv('Debt.PPP3.csv')
+
+print(df1.head())
+print(df2.head())
+print(df3.head())
+
+# Merge df1 with df2
+merged_df1 = pd.merge(df1, df2, on='Country Code')
+
+# Merge df3 with df2
+merged_df2 = pd.merge(df3, df2, on='Country Code')
+
+# List of years
+years = list(range(2008, 2023 + 1))
+
+# Reshape merged_df1
+merged_df1_clean = merged_df1.melt(id_vars=['Country Name_y', 'Country Code', 'Region', 'IncomeGroup'], 
+                                   value_vars=[str(year) for year in years], 
+                                   var_name='Year', 
+                                   value_name='Debt')
+merged_df1_clean['Year'] = pd.to_numeric(merged_df1_clean['Year'])
+merged_df1_clean['Debt'] = pd.to_numeric(merged_df1_clean['Debt'], errors='coerce')
+
+# Reshape merged_df2
+merged_df2_clean = merged_df2.melt(id_vars=['Country Name_y', 'Country Code', 'Region', 'IncomeGroup'], 
+                                   value_vars=[str(year) for year in years], 
+                                   var_name='Year', 
+                                   value_name='Debt')
+merged_df2_clean['Year'] = pd.to_numeric(merged_df2_clean['Year'])
+merged_df2_clean['Debt'] = pd.to_numeric(merged_df2_clean['Debt'], errors='coerce')
+
+import matplotlib.pyplot as plt
+
+# Function to plot debt trends
+def plot_debt_trends(countries, title):
+    plt.figure(figsize=(14, 8))
+    for country in countries:
+        country_data = combined_df[combined_df['Country Name_y'] == country]
+        plt.plot(country_data['Year'], country_data['Debt'], label=country)
+    plt.xlabel('Year')
+    plt.ylabel('Debt')
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+# Top countries for plotting
+Top_countries = ['United States', 'China', 'India', 'Japan']
+
+plot_debt_trends(Top_countries, 'Debt Trends for Selected Countries (2008-2023)')
+
+
+
+
+
+
+# Group by IncomeGroup and plot
+income_group_data = combined_df.groupby(['Year', 'IncomeGroup'])['Debt'].mean().unstack()
+income_group_data.plot(figsize=(14, 8))
+plt.xlabel('Year')
+plt.ylabel('Average Debt')
+plt.title('Average Debt Trends by Income Group (2008-2023)')
+plt.grid(True)
+plt.show()
+
+# Group by Region and plot
+region_data = combined_df.groupby(['Year', 'Region'])['Debt'].mean().unstack()
+region_data.plot(figsize=(14, 8))
+plt.xlabel('Year')
+plt.ylabel('Average Debt')
+plt.title('Average Debt Trends by Region (2008-2023)')
+plt.grid(True)
+plt.show()
